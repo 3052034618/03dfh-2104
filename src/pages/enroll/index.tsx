@@ -9,11 +9,13 @@ import styles from './index.module.scss'
 
 const EnrollPage: React.FC = () => {
   const parties = usePartyStore(state => state.parties)
+  const currentPartyId = usePartyStore(state => state.currentPartyId)
   const lastRemindedPlayers = usePartyStore(state => state.lastRemindedPlayers)
   const markReminded = usePartyStore(state => state.markReminded)
   const [selectedPartyIdx, setSelectedPartyIdx] = useState(0)
   const [showRemindedToast, setShowRemindedToast] = useState(false)
   const [recentlyRemindedNames, setRecentlyRemindedNames] = useState<string[]>([])
+  const [initialized, setInitialized] = useState(false)
 
   const invitingParties = useMemo(
     () => parties.filter(p => p.status !== 'completed'),
@@ -21,6 +23,18 @@ const EnrollPage: React.FC = () => {
   )
 
   const currentParty = invitingParties[selectedPartyIdx] || null
+
+  useEffect(() => {
+    if (!initialized && invitingParties.length > 0 && currentPartyId) {
+      const idx = invitingParties.findIndex(p => p.id === currentPartyId)
+      if (idx >= 0) {
+        setSelectedPartyIdx(idx)
+      }
+      setInitialized(true)
+    } else if (!initialized && invitingParties.length > 0) {
+      setInitialized(true)
+    }
+  }, [invitingParties, currentPartyId, initialized])
 
   const confirmed = currentParty ? getConfirmedCount(currentParty.players) : 0
   const pending = currentParty ? getPendingCount(currentParty.players) : 0

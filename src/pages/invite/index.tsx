@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { View, Text, Image } from '@tarojs/components'
-import Taro, { useRouter } from '@tarojs/taro'
+import React, { useState, useEffect, useMemo } from 'react'
+import { View, Text, Image, Button } from '@tarojs/components'
+import Taro, { useRouter, useShareAppMessage } from '@tarojs/taro'
 import { usePartyStore } from '@/store/partyStore'
 import { getConfirmedCount, formatDate, getWeekday } from '@/utils/format'
 import styles from './index.module.scss'
+
+const isH5 = typeof window !== 'undefined' && Taro.getEnv() === 'WEB'
 
 const InvitePage: React.FC = () => {
   const router = useRouter()
@@ -13,7 +15,6 @@ const InvitePage: React.FC = () => {
   const setCurrentParty = usePartyStore(state => state.setCurrentParty)
 
   const [party, setParty] = useState(() => partyId ? getPartyById(partyId) : undefined)
-  const [showShareToast, setShowShareToast] = useState(false)
 
   useEffect(() => {
     if (partyId) {
@@ -25,15 +26,26 @@ const InvitePage: React.FC = () => {
     }
   }, [partyId, getPartyById, setCurrentParty])
 
-  const handleShare = () => {
-    setShowShareToast(true)
-    Taro.showToast({
-      title: '请点击右上角转发',
-      icon: 'none',
-      duration: 2000
+  const confirmed = useMemo(() => party ? getConfirmedCount(party.players) : 0, [party])
+  const progressPercent = useMemo(() => party ? Math.round((confirmed / party.totalSeats) * 100) : 0, [party, confirmed])
+
+  useShareAppMessage(() => {
+    if (!party) return { title: '生日剧本杀邀请', path: '/pages/index/index' }
+    return {
+      title: `🎂 ${party.birthdayPersonName}邀请你参加生日剧本杀！`,
+      path: `/pages/invite/index?id=${partyId}`
+    }
+  })
+
+  const handleShareH5 = () => {
+    if (!partyId) return
+    const url = `${window.location.origin}${window.location.pathname}#/pages/invite/index?id=${partyId}`
+    Taro.setClipboardData({
+      data: url,
+      success: () => {
+        Taro.showToast({ title: '链接已复制，发给好友吧', icon: 'success' })
+      }
     })
-    setTimeout(() => setShowShareToast(false), 2000)
-    console.info('[Invite] Share invite card for party:', partyId)
   }
 
   const handleEnroll = () => {
@@ -65,9 +77,6 @@ const InvitePage: React.FC = () => {
     )
   }
 
-  const confirmed = getConfirmedCount(party.players)
-  const progressPercent = Math.round((confirmed / party.totalSeats) * 100)
-
   return (
     <View className={styles.container}>
       <View className={styles.inviteCard}>
@@ -95,7 +104,7 @@ const InvitePage: React.FC = () => {
 
         <View className={styles.infoGrid}>
           <View className={styles.infoCard}>
-            <Text className={styles.infoIcon}>�</Text>
+            <Text className={styles.infoIcon}>🏙</Text>
             <Text className={styles.infoLabel}>城市</Text>
             <Text className={styles.infoValue}>
               {party.city === 'bj' ? '北京' : party.city === 'sh' ? '上海' : party.city === 'gz' ? '广州' : party.city === 'sz' ? '深圳' : party.city === 'cd' ? '成都' : party.city === 'hz' ? '杭州' : party.city === 'nj' ? '南京' : party.city === 'wh' ? '武汉' : party.city === 'cq' ? '重庆' : party.city === 'xa' ? '西安' : party.city}
@@ -191,27 +200,33 @@ const InvitePage: React.FC = () => {
             <View className={styles.btnBack} onClick={handleBackToEnroll}>
               <Text>查看报名管理</Text>
             </View>
-            <View className={styles.btnShare} onClick={handleShare}>
-              <Text>转发给好友</Text>
-            </View>
+            {isH5 ? (
+              <View className={styles.btnShare} onClick={handleShareH5}>
+                <Text>复制链接给好友</Text>
+              </View>
+            ) : (
+              <Button className={styles.btnShare} openType="share">
+                转发给好友
+              </Button>
+            )}
           </>
         ) : (
           <>
-            <View className={styles.btnShare} onClick={handleShare}>
-              <Text>转发邀请</Text>
-            </View>
+            {isH5 ? (
+              <View className={styles.btnShare} onClick={handleShareH5}>
+                <Text>复制链接邀请</Text>
+              </View>
+            ) : (
+              <Button className={styles.btnShare} openType="share">
+                转发邀请
+              </Button>
+            )}
             <View className={styles.btnEnroll} onClick={handleEnroll}>
               <Text>我要报名</Text>
             </View>
           </>
         )}
       </View>
-
-      {showShareToast && (
-        <View className={styles.remindedToast}>
-          <Text className={styles.remindedToastText}>请点击右上角转发给好友</Text>
-        </View>
-      )}
     </View>
   )
 }

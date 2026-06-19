@@ -32,6 +32,7 @@ const RegisterPage: React.FC = () => {
   const partyId = router.params.id
   const getPartyById = usePartyStore(state => state.getPartyById)
   const addPlayer = usePartyStore(state => state.addPlayer)
+  const setCurrentParty = usePartyStore(state => state.setCurrentParty)
 
   const [party, setParty] = useState(partyId ? getPartyById(partyId) : undefined)
   const [name, setName] = useState('')
@@ -82,6 +83,7 @@ const RegisterPage: React.FC = () => {
 
   const handleDone = () => {
     setShowSuccess(false)
+    if (partyId) setCurrentParty(partyId)
     Taro.switchTab({ url: '/pages/enroll/index' })
   }
 

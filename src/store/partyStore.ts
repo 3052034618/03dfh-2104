@@ -2,7 +2,40 @@ import { create } from 'zustand'
 import type { Party, Player, GameType, Reminder } from '@/types/party'
 import { parties as mockParties } from '@/data/parties'
 import { reminders as mockReminders } from '@/data/reminders'
+import Taro from '@tarojs/taro'
 import dayjs from 'dayjs'
+
+const STORAGE_KEY = 'birthday_party_store'
+
+const loadFromStorage = () => {
+  try {
+    const raw = Taro.getStorageSync(STORAGE_KEY)
+    if (raw) {
+      const data = JSON.parse(raw)
+      if (data.parties && data.parties.length > 0) {
+        return { parties: data.parties, reminders: data.reminders || [] }
+      }
+    }
+  } catch (e) {
+    console.warn('[PartyStore] Failed to load from storage:', e)
+  }
+  return null
+}
+
+const saveToStorage = (state: { parties: Party[]; reminders: Reminder[] }) => {
+  try {
+    Taro.setStorageSync(STORAGE_KEY, JSON.stringify({
+      parties: state.parties,
+      reminders: state.reminders
+    }))
+  } catch (e) {
+    console.warn('[PartyStore] Failed to save to storage:', e)
+  }
+}
+
+const initialData = loadFromStorage()
+const initialParties = initialData ? initialData.parties : mockParties
+const initialReminders = initialData ? initialData.reminders : mockReminders
 
 const generateCountdown = (date: string, time: string): string => {
   const target = dayjs(`${date} ${time}`)
@@ -84,7 +117,7 @@ interface PartyState {
   addParty: (party: Party) => { party: Party; reminders: Reminder[] }
   setCurrentParty: (id: string) => void
   updatePlayerStatus: (partyId: string, playerId: string, status: 'confirmed' | 'declined') => void
-  addPlayer: (partyId: string, player: Player) => void
+  addPlayer: (partyId: string, player: Player) => Player
   getPartyById: (id: string) => Party | undefined
   getCurrentParty: () => Party | undefined
   getRemindersForParty: (partyId: string) => Reminder[]
@@ -93,48 +126,64 @@ interface PartyState {
   lastRemindedPlayers: { partyId: string; playerIds: string[]; timestamp: number } | null
 }
 
+const persistState = (state: PartyState) => {
+  saveToStorage({ parties: state.parties, reminders: state.reminders })
+}
+
 export const usePartyStore = create<PartyState>((set, get) => ({
-  parties: mockParties,
-  reminders: mockReminders,
+  parties: initialParties,
+  reminders: initialReminders,
   currentPartyId: null,
   lastRemindedPlayers: null,
 
   addParty: (party) => {
     const newReminders = generateRemindersForParty(party)
-    set((state) => ({
-      parties: [party, ...state.parties],
-      reminders: [...newReminders, ...state.reminders],
-      currentPartyId: party.id
-    }))
+    set((state) => {
+      const newState = {
+        parties: [party, ...state.parties],
+        reminders: [...newReminders, ...state.reminders],
+        currentPartyId: party.id
+      }
+      persistState({ ...state, ...newState } as PartyState)
+      return newState
+    })
     console.info('[PartyStore] New party created:', party.id, 'with', newReminders.length, 'reminders')
     return { party, reminders: newReminders }
   },
 
   setCurrentParty: (id) => set({ currentPartyId: id }),
 
-  updatePlayerStatus: (partyId, playerId, status) => set((state) => ({
-    parties: state.parties.map(p =>
-      p.id === partyId
-        ? { ...p, players: p.players.map(pl => pl.id === playerId ? { ...pl, status } : pl) }
-        : p
-    )
-  })),
+  updatePlayerStatus: (partyId, playerId, status) => set((state) => {
+    const newState = {
+      parties: state.parties.map(p =>
+        p.id === partyId
+          ? { ...p, players: p.players.map(pl => pl.id === playerId ? { ...pl, status } : pl) }
+          : p
+      )
+    }
+    persistState({ ...state, ...newState } as PartyState)
+    return newState
+  }),
 
   addPlayer: (partyId, player) => {
     const newPlayer = { ...player, id: player.id || `u${Date.now()}` }
-    set((state) => ({
-      parties: state.parties.map(p =>
-        p.id === partyId
-          ? {
-              ...p,
-              players: [
-                ...p.players,
-                newPlayer
-              ]
-            }
-          : p
-      )
-    }))
+    set((state) => {
+      const newState = {
+        parties: state.parties.map(p =>
+          p.id === partyId
+            ? {
+                ...p,
+                players: [
+                  ...p.players,
+                  newPlayer
+                ]
+              }
+            : p
+        )
+      }
+      persistState({ ...state, ...newState } as PartyState)
+      return newState
+    })
     console.info('[PartyStore] Player added to party', partyId, ':', newPlayer.name)
     return newPlayer
   },
