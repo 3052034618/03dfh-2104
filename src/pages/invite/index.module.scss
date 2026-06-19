@@ -2,30 +2,358 @@
 
 .container {
   min-height: 100vh;
+  padding: 0 $page-padding;
+  padding-bottom: 200rpx;
+  background: linear-gradient(180deg, rgba($color-primary, 0.08) 0%, rgba($color-accent, 0.04) 40%, $color-bg-page 100%);
+}
+
+.inviteCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-top: $spacing-xl;
+  box-shadow: $shadow-card;
+  position: relative;
+  overflow: hidden;
+}
+
+.decoration {
+  position: absolute;
+  top: -60rpx;
+  right: -40rpx;
+  font-size: 200rpx;
+  opacity: 0.08;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+  position: relative;
+  z-index: 1;
+}
+
+.inviteTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.inviteSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.birthdaySection {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 $page-padding;
-  background: $color-bg-page;
+  gap: $spacing-md;
+  padding: $spacing-lg 0;
+  margin-bottom: $spacing-lg;
+  background: linear-gradient(90deg, rgba($color-accent, 0.06), rgba($color-primary, 0.04));
+  border-radius: $radius-lg;
+  position: relative;
+  z-index: 1;
 }
 
-.icon {
-  font-size: 80rpx;
-  display: block;
-  margin-bottom: $spacing-md;
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $radius-round;
+  border: 4rpx solid $color-accent;
+  box-shadow: 0 4rpx 16rpx rgba($color-accent, 0.25);
 }
 
-.title {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
+.birthdayInfo {
+  text-align: left;
+}
+
+.birthdayName {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.birthdayCrown {
+  font-size: 28rpx;
+  margin-left: 8rpx;
+}
+
+.birthdayLabel {
+  font-size: $font-size-sm;
+  color: $color-accent;
+  font-weight: $font-weight-medium;
+}
+
+.infoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.infoCard {
+  width: calc(50% - #{$spacing-sm});
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.infoIcon {
+  font-size: 32rpx;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+}
+
+.gameTypesSection {
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.sectionLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
   display: block;
   margin-bottom: $spacing-sm;
 }
 
-.desc {
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tag {
+  background: $color-tag-bg;
+  padding: 8rpx 24rpx;
+  border-radius: $radius-round;
+}
+
+.tagText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  white-space: nowrap;
+}
+
+.servicesSection {
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.servicesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.serviceItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: $color-pink-bg;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-round;
+}
+
+.serviceIcon {
+  font-size: $font-size-md;
+}
+
+.serviceText {
+  font-size: $font-size-sm;
+  color: $color-pink-text;
+  white-space: nowrap;
+}
+
+.noServices {
   font-size: $font-size-sm;
   color: $color-text-tertiary;
+}
+
+.progressSection {
+  background: linear-gradient(135deg, rgba($color-primary, 0.04), rgba($color-accent, 0.04));
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.progressLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.progressValue {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.progressBar {
+  height: 12rpx;
+  background: rgba($color-border, 0.5);
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-xs;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary, $color-accent);
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: center;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: $spacing-md;
+  z-index: 100;
+}
+
+.btnShare {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnEnroll {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnBack {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.emptyState {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
   display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: $spacing-lg;
+}
+
+.emptyBtn {
+  @include button-reset;
+  height: $button-height-md;
+  background: $color-primary;
+  border-radius: $radius-button;
+  padding: 0 $spacing-xl;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.remindedToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: $color-text-white;
+  padding: $spacing-lg $spacing-xl;
+  border-radius: $radius-lg;
+  z-index: 999;
+  text-align: center;
+}
+
+.remindedToastText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  display: block;
+  line-height: $line-height-loose;
 }

@@ -24,7 +24,6 @@ const CreatePage: React.FC = () => {
   const [needPhoto, setNeedPhoto] = useState(false)
   const [needHostBlessing, setNeedHostBlessing] = useState(false)
   const [birthdayName, setBirthdayName] = useState('')
-  const [showSuccess, setShowSuccess] = useState(false)
 
   const addParty = usePartyStore(state => state.addParty)
 
@@ -85,19 +84,12 @@ const CreatePage: React.FC = () => {
       createdAt: new Date().toISOString().slice(0, 10)
     }
 
-    addParty(newParty)
-    setShowSuccess(true)
-    console.info('[Create] Party created:', newParty.id)
-  }
+    const result = addParty(newParty)
+    console.info('[Create] Party created:', newParty.id, 'reminders:', result.reminders.length)
 
-  const handleViewInvite = () => {
-    setShowSuccess(false)
-    Taro.switchTab({ url: '/pages/enroll/index' })
-  }
-
-  const handleBackHome = () => {
-    setShowSuccess(false)
-    Taro.switchTab({ url: '/pages/index/index' })
+    Taro.redirectTo({
+      url: `/pages/invite/index?id=${newParty.id}&from=create`
+    })
   }
 
   const handleCityChange = (e) => {
@@ -307,24 +299,6 @@ const CreatePage: React.FC = () => {
           )}
         </View>
       </>
-    )
-  }
-
-  if (showSuccess) {
-    return (
-      <View className={styles.successOverlay}>
-        <View className={styles.successCard}>
-          <Text className={styles.successIcon}>🎉</Text>
-          <Text className={styles.successTitle}>创建成功！</Text>
-          <Text className={styles.successDesc}>邀请卡已生成，快转发给好友吧！好友点开后可直接报名参加。</Text>
-          <View className={styles.successBtn} onClick={handleViewInvite}>
-            <Text>查看报名进度</Text>
-          </View>
-          <View className={styles.successBtnSecondary} onClick={handleBackHome}>
-            <Text>返回首页</Text>
-          </View>
-        </View>
-      </View>
     )
   }
 

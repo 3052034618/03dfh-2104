@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { View, Text, Picker } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import classnames from 'classnames'
@@ -9,8 +9,11 @@ import styles from './index.module.scss'
 
 const EnrollPage: React.FC = () => {
   const parties = usePartyStore(state => state.parties)
-  const updatePlayerStatus = usePartyStore(state => state.updatePlayerStatus)
+  const lastRemindedPlayers = usePartyStore(state => state.lastRemindedPlayers)
+  const markReminded = usePartyStore(state => state.markReminded)
   const [selectedPartyIdx, setSelectedPartyIdx] = useState(0)
+  const [showRemindedToast, setShowRemindedToast] = useState(false)
+  const [recentlyRemindedNames, setRecentlyRemindedNames] = useState<string[]>([])
 
   const invitingParties = useMemo(
     () => parties.filter(p => p.status !== 'completed'),
@@ -24,21 +27,56 @@ const EnrollPage: React.FC = () => {
   const declined = currentParty ? currentParty.players.filter(p => p.status === 'declined').length : 0
   const progressPercent = currentParty ? Math.round((confirmed / currentParty.totalSeats) * 100) : 0
 
+  const pendingPlayers = currentParty
+    ? currentParty.players.filter(p => p.status === 'pending')
+    : []
+
+  useEffect(() => {
+    if (lastRemindedPlayers && currentParty && lastRemindedPlayers.partyId === currentParty.id) {
+      const names = currentParty.players
+        .filter(p => lastRemindedPlayers.playerIds.includes(p.id))
+        .map(p => p.name)
+      if (names.length > 0) {
+        setRecentlyRemindedNames(names)
+        setShowRemindedToast(true)
+        const timer = setTimeout(() => {
+          setShowRemindedToast(false)
+        }, 4000)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [lastRemindedPlayers, currentParty])
+
   const handleRemind = (playerId: string) => {
     if (!currentParty) return
-    Taro.showToast({ title: '已发送催确认消息', icon: 'success' })
-    console.info('[Enroll] Remind player:', playerId)
+    const player = currentParty.players.find(p => p.id === playerId)
+    if (!player || player.status !== 'pending') return
+
+    markReminded(currentParty.id, [playerId])
+    Taro.showToast({ title: `已催${player.name}确认`, icon: 'success' })
+    console.info('[Enroll] Remind player:', player.name, playerId)
   }
 
   const handleRemindAll = () => {
     if (!currentParty) return
     const pendingPlayers = currentParty.players.filter(p => p.status === 'pending')
-    Taro.showToast({ title: `已催${pendingPlayers.length}人确认`, icon: 'success' })
-    console.info('[Enroll] Remind all pending:', pendingPlayers.length)
+    if (pendingPlayers.length === 0) {
+      Taro.showToast({ title: '没有待回复的玩家', icon: 'none' })
+      return
+    }
+
+    const playerIds = pendingPlayers.map(p => p.id)
+    const playerNames = pendingPlayers.map(p => p.name)
+
+    markReminded(currentParty.id, playerIds)
+
+    console.info('[Enroll] Remind all pending:', pendingPlayers.length, playerNames)
   }
 
   const handlePartyChange = (e) => {
     setSelectedPartyIdx(Number(e.detail.value))
+    setShowRemindedToast(false)
+    setRecentlyRemindedNames([])
   }
 
   const handleCreate = () => {
@@ -140,20 +178,41 @@ const EnrollPage: React.FC = () => {
               <Text className={styles.playersTitle}>玩家列表</Text>
               {pending > 0 && (
                 <View className={styles.remindAllBtn} onClick={handleRemindAll}>
-                  <Text>一键催确认</Text>
+                  <Text>一键催{pending}人确认</Text>
                 </View>
               )}
             </View>
+
+            {pendingPlayers.length > 0 && (
+              <View className={styles.pendingHint}>
+                <Text className={styles.pendingHintText}>
+                  ⏰ 还有{pendingPlayers.length}人待回复：{pendingPlayers.map(p => p.name).join('、')}
+                </Text>
+              </View>
+            )}
+
             {currentParty.players.map(player => (
               <PlayerCard
                 key={player.id}
                 player={player}
-                showActions={true}
+                showActions={player.status === 'pending'}
                 onRemind={handleRemind}
               />
             ))}
           </View>
         </>
+      )}
+
+      {showRemindedToast && recentlyRemindedNames.length > 0 && (
+        <View className={styles.remindedToast}>
+          <Text className={styles.remindedToastTitle}>✅ 已发送催确认</Text>
+          <Text className={styles.remindedToastText}>
+            本次催了{recentlyRemindedNames.length}人：{recentlyRemindedNames.join('、')}
+          </Text>
+          <Text className={styles.remindedToastDesc}>
+            （仅催待回复的人，已确认/已拒绝的不会被打扰）
+          </Text>
+        </View>
       )}
     </View>
   )

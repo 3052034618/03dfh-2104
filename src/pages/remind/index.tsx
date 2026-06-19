@@ -2,25 +2,26 @@ import React, { useState, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
 import classnames from 'classnames'
 import ReminderCard from '@/components/ReminderCard'
-import { reminders } from '@/data/reminders'
+import { usePartyStore } from '@/store/partyStore'
 import type { PlayerRole } from '@/types/party'
 import styles from './index.module.scss'
 
 const RemindPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<PlayerRole | 'all'>('all')
+  const getRemindersByRole = usePartyStore(state => state.getRemindersByRole)
 
   const filteredReminders = useMemo(() => {
-    if (activeTab === 'all') return reminders
-    return reminders.filter(r => r.role === activeTab)
-  }, [activeTab])
+    if (activeTab === 'all') return getRemindersByRole()
+    return getRemindersByRole(activeTab)
+  }, [activeTab, getRemindersByRole])
 
   const birthdayReminders = useMemo(
-    () => reminders.filter(r => r.role === 'birthday'),
-    []
+    () => getRemindersByRole('birthday'),
+    [getRemindersByRole]
   )
   const playerReminders = useMemo(
-    () => reminders.filter(r => r.role === 'player'),
-    []
+    () => getRemindersByRole('player'),
+    [getRemindersByRole]
   )
 
   return (
@@ -35,19 +36,19 @@ const RemindPage: React.FC = () => {
           className={classnames(styles.tab, activeTab === 'all' && styles.tabActive)}
           onClick={() => setActiveTab('all')}
         >
-          <Text>全部</Text>
+          <Text>全部 {getRemindersByRole().length > 0 && `(${getRemindersByRole().length})`}</Text>
         </View>
         <View
           className={classnames(styles.tab, activeTab === 'birthday' && styles.tabAccentActive)}
           onClick={() => setActiveTab('birthday')}
         >
-          <Text>寿星专属</Text>
+          <Text>寿星专属 {birthdayReminders.length > 0 && `(${birthdayReminders.length})`}</Text>
         </View>
         <View
           className={classnames(styles.tab, activeTab === 'player' && styles.tabActive)}
           onClick={() => setActiveTab('player')}
         >
-          <Text>玩家提醒</Text>
+          <Text>玩家提醒 {playerReminders.length > 0 && `(${playerReminders.length})`}</Text>
         </View>
       </View>
 
@@ -76,7 +77,13 @@ const RemindPage: React.FC = () => {
         ) : (
           <View className={styles.emptyState}>
             <Text className={styles.emptyIcon}>🔔</Text>
-            <Text className={styles.emptyText}>暂无提醒，临近开场时自动推送</Text>
+            <Text className={styles.emptyText}>
+              {activeTab === 'birthday'
+                ? '暂无寿星专属提醒，创建生日局后自动生成'
+                : activeTab === 'player'
+                  ? '暂无玩家提醒，创建生日局后自动生成'
+                  : '暂无提醒，临近开场时自动推送'}
+            </Text>
           </View>
         )}
       </View>
