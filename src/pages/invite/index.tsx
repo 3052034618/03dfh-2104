@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { View, Text, Image, Button } from '@tarojs/components'
 import Taro, { useRouter, useShareAppMessage } from '@tarojs/taro'
-import { usePartyStore } from '@/store/partyStore'
+import { usePartyStore, encodePartyForUrl, decodePartyFromUrl } from '@/store/partyStore'
 import { getConfirmedCount, formatDate, getWeekday } from '@/utils/format'
+import type { Party } from '@/types/party'
 import styles from './index.module.scss'
 
 const isH5 = typeof window !== 'undefined' && Taro.getEnv() === 'WEB'
@@ -10,36 +11,66 @@ const isH5 = typeof window !== 'undefined' && Taro.getEnv() === 'WEB'
 const InvitePage: React.FC = () => {
   const router = useRouter()
   const partyId = router.params.id
+  const dataParam = router.params.data
   const from = router.params.from
   const getPartyById = usePartyStore(state => state.getPartyById)
   const setCurrentParty = usePartyStore(state => state.setCurrentParty)
+  const importParty = usePartyStore(state => state.importParty)
 
-  const [party, setParty] = useState(() => partyId ? getPartyById(partyId) : undefined)
+  const [party, setParty] = useState<Party | undefined>(() => {
+    if (!partyId) return undefined
+    const existing = getPartyById(partyId)
+    if (existing) return existing
+    if (dataParam) {
+      const decoded = decodePartyFromUrl(dataParam)
+      if (decoded && decoded.id === partyId) {
+        importParty(decoded)
+        return decoded
+      }
+    }
+    return undefined
+  })
 
   useEffect(() => {
     if (partyId) {
-      const p = getPartyById(partyId)
-      if (p) {
-        setParty(p)
+      const existing = getPartyById(partyId)
+      if (existing) {
+        setParty(existing)
         setCurrentParty(partyId)
+        return
+      }
+      if (dataParam) {
+        const decoded = decodePartyFromUrl(dataParam)
+        if (decoded && decoded.id === partyId) {
+          importParty(decoded)
+          setParty(decoded)
+          setCurrentParty(partyId)
+        }
       }
     }
-  }, [partyId, getPartyById, setCurrentParty])
+  }, [partyId, dataParam, getPartyById, setCurrentParty, importParty])
 
   const confirmed = useMemo(() => party ? getConfirmedCount(party.players) : 0, [party])
   const progressPercent = useMemo(() => party ? Math.round((confirmed / party.totalSeats) * 100) : 0, [party, confirmed])
+
+  const sharePath = useMemo(() => {
+    if (!party || !partyId) return '/pages/index/index'
+    const encoded = encodePartyForUrl(party)
+    return `/pages/invite/index?id=${partyId}&data=${encoded}`
+  }, [party, partyId])
 
   useShareAppMessage(() => {
     if (!party) return { title: '生日剧本杀邀请', path: '/pages/index/index' }
     return {
       title: `🎂 ${party.birthdayPersonName}邀请你参加生日剧本杀！`,
-      path: `/pages/invite/index?id=${partyId}`
+      path: sharePath
     }
   })
 
   const handleShareH5 = () => {
-    if (!partyId) return
-    const url = `${window.location.origin}${window.location.pathname}#/pages/invite/index?id=${partyId}`
+    if (!party || !partyId) return
+    const encoded = encodePartyForUrl(party)
+    const url = `${window.location.origin}${window.location.pathname}#/pages/invite/index?id=${partyId}&data=${encoded}`
     Taro.setClipboardData({
       data: url,
       success: () => {

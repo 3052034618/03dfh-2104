@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { View, Text, Picker } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import classnames from 'classnames'
 import PlayerCard from '@/components/PlayerCard'
 import { usePartyStore } from '@/store/partyStore'
@@ -12,10 +12,16 @@ const EnrollPage: React.FC = () => {
   const currentPartyId = usePartyStore(state => state.currentPartyId)
   const lastRemindedPlayers = usePartyStore(state => state.lastRemindedPlayers)
   const markReminded = usePartyStore(state => state.markReminded)
+  const syncFromStorage = usePartyStore(state => state.syncFromStorage)
   const [selectedPartyIdx, setSelectedPartyIdx] = useState(0)
   const [showRemindedToast, setShowRemindedToast] = useState(false)
   const [recentlyRemindedNames, setRecentlyRemindedNames] = useState<string[]>([])
   const [initialized, setInitialized] = useState(false)
+
+  useDidShow(() => {
+    syncFromStorage()
+    setInitialized(false)
+  })
 
   const invitingParties = useMemo(
     () => parties.filter(p => p.status !== 'completed'),

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
+import Taro, { useDidShow } from '@tarojs/taro'
 import classnames from 'classnames'
 import ReminderCard from '@/components/ReminderCard'
 import { usePartyStore } from '@/store/partyStore'
@@ -9,6 +10,11 @@ import styles from './index.module.scss'
 const RemindPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<PlayerRole | 'all'>('all')
   const getRemindersByRole = usePartyStore(state => state.getRemindersByRole)
+  const syncFromStorage = usePartyStore(state => state.syncFromStorage)
+
+  useDidShow(() => {
+    syncFromStorage()
+  })
 
   const filteredReminders = useMemo(() => {
     if (activeTab === 'all') return getRemindersByRole()

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Party, Player, GameType, Reminder } from '@/types/party'
+import type { Party, Player, Reminder } from '@/types/party'
 import { parties as mockParties } from '@/data/parties'
 import { reminders as mockReminders } from '@/data/reminders'
 import Taro from '@tarojs/taro'
@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 
 const STORAGE_KEY = 'birthday_party_store'
 
-const loadFromStorage = () => {
+const loadFromStorage = (): { parties: Party[]; reminders: Reminder[] } | null => {
   try {
     const raw = Taro.getStorageSync(STORAGE_KEY)
     if (raw) {
@@ -51,7 +51,6 @@ const generateRemindersForParty = (party: Party): Reminder[] => {
   const countdown = generateCountdown(party.birthdayDate, party.birthdayTime)
   const startTime = dayjs(`${party.birthdayDate} ${party.birthdayTime}`)
   const arrivalTime = startTime.subtract(15, 'minute').format('HH:mm')
-
   const gameTypeStr = party.gameTypes.join('、')
 
   const ceremonyFlow = [
@@ -64,12 +63,8 @@ const generateRemindersForParty = (party: Party): Reminder[] => {
   ]
 
   const taboos = ['不要提前搜索剧本攻略', '不要迟到', '不要剧透给未到场的朋友']
-  if (party.gameTypes.includes('恐怖')) {
-    taboos.push('恐怖本注意调节心态，感到不适及时告知DM')
-  }
-  if (party.needHostBlessing) {
-    taboos.push('不要提前知道惊喜环节内容')
-  }
+  if (party.gameTypes.includes('恐怖')) taboos.push('恐怖本注意调节心态，感到不适及时告知DM')
+  if (party.needHostBlessing) taboos.push('不要提前知道惊喜环节内容')
 
   const dressSuggestion = party.gameTypes.includes('恐怖')
     ? '建议深色休闲装，增强沉浸感；胆小者可带护身符'
@@ -79,35 +74,52 @@ const generateRemindersForParty = (party: Party): Reminder[] => {
         ? '建议亮色休闲装，配合欢乐氛围'
         : '休闲舒适即可'
 
-  const birthdayReminder: Reminder = {
-    id: `r-${party.id}-b`,
-    partyId: party.id,
-    partyName: `${party.birthdayPersonName}生日局`,
-    role: 'birthday',
-    content: `你是今天的寿星！${party.needCake ? '蛋糕已为你备好' : ''}${party.needPhoto ? '，专业摄影师就位' : ''}${party.needHostBlessing ? '，还有惊喜祝福环节哦' : ''}`,
-    arrivalTime: startTime.subtract(30, 'minute').format('HH:mm'),
-    dressSuggestion: '可穿便装，建议浅色/亮色衣服拍照上镜，寿星当然要是全场最亮眼的！',
-    taboos: ['不要提前看剧本', '不要透露惊喜环节', '放松心情享受生日！'],
-    ceremonyFlow,
-    storeAddress: party.storeAddress,
-    countdown
-  }
+  return [
+    {
+      id: `r-${party.id}-b`,
+      partyId: party.id,
+      partyName: `${party.birthdayPersonName}生日局`,
+      role: 'birthday' as const,
+      content: `你是今天的寿星！${party.needCake ? '蛋糕已为你备好' : ''}${party.needPhoto ? '，专业摄影师就位' : ''}${party.needHostBlessing ? '，还有惊喜祝福环节哦' : ''}`,
+      arrivalTime: startTime.subtract(30, 'minute').format('HH:mm'),
+      dressSuggestion: '可穿便装，建议浅色/亮色衣服拍照上镜，寿星当然要是全场最亮眼的！',
+      taboos: ['不要提前看剧本', '不要透露惊喜环节', '放松心情享受生日！'],
+      ceremonyFlow,
+      storeAddress: party.storeAddress,
+      countdown
+    },
+    {
+      id: `r-${party.id}-p`,
+      partyId: party.id,
+      partyName: `${party.birthdayPersonName}生日局`,
+      role: 'player' as const,
+      content: `${party.birthdayPersonName}的${gameTypeStr}生日剧本杀局即将开始！${party.needCake ? '有蛋糕🍰' : ''}${party.needPhoto ? '有拍照📷' : ''}${party.needHostBlessing ? '有惊喜环节🎁' : ''}`,
+      arrivalTime,
+      dressSuggestion,
+      taboos,
+      ceremonyFlow: [],
+      storeAddress: party.storeAddress,
+      countdown
+    }
+  ]
+}
 
-  const playerReminder: Reminder = {
-    id: `r-${party.id}-p`,
-    partyId: party.id,
-    partyName: `${party.birthdayPersonName}生日局`,
-    role: 'player',
-    content: `${party.birthdayPersonName}的${gameTypeStr}生日剧本杀局即将开始！${party.needCake ? '有蛋糕🍰' : ''}${party.needPhoto ? '有拍照📷' : ''}${party.needHostBlessing ? '有惊喜环节🎁' : ''}`,
-    arrivalTime,
-    dressSuggestion,
-    taboos,
-    ceremonyFlow: [],
-    storeAddress: party.storeAddress,
-    countdown
+export const encodePartyForUrl = (party: Party): string => {
+  try {
+    const json = JSON.stringify(party)
+    return encodeURIComponent(json)
+  } catch {
+    return ''
   }
+}
 
-  return [birthdayReminder, playerReminder]
+export const decodePartyFromUrl = (encoded: string): Party | null => {
+  try {
+    const json = decodeURIComponent(encoded)
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
 }
 
 interface PartyState {
@@ -115,6 +127,7 @@ interface PartyState {
   reminders: Reminder[]
   currentPartyId: string | null
   addParty: (party: Party) => { party: Party; reminders: Reminder[] }
+  importParty: (party: Party) => void
   setCurrentParty: (id: string) => void
   updatePlayerStatus: (partyId: string, playerId: string, status: 'confirmed' | 'declined') => void
   addPlayer: (partyId: string, player: Player) => Player
@@ -123,6 +136,7 @@ interface PartyState {
   getRemindersForParty: (partyId: string) => Reminder[]
   getRemindersByRole: (role?: 'birthday' | 'player') => Reminder[]
   markReminded: (partyId: string, playerIds: string[]) => void
+  syncFromStorage: () => void
   lastRemindedPlayers: { partyId: string; playerIds: string[]; timestamp: number } | null
 }
 
@@ -147,8 +161,27 @@ export const usePartyStore = create<PartyState>((set, get) => ({
       persistState({ ...state, ...newState } as PartyState)
       return newState
     })
-    console.info('[PartyStore] New party created:', party.id, 'with', newReminders.length, 'reminders')
+    console.info('[PartyStore] New party created:', party.id)
     return { party, reminders: newReminders }
+  },
+
+  importParty: (party) => {
+    const existing = get().parties.find(p => p.id === party.id)
+    if (existing) {
+      console.info('[PartyStore] Party already exists, skipping import:', party.id)
+      return
+    }
+    const newReminders = generateRemindersForParty(party)
+    set((state) => {
+      const newState = {
+        parties: [party, ...state.parties],
+        reminders: [...newReminders, ...state.reminders],
+        currentPartyId: party.id
+      }
+      persistState({ ...state, ...newState } as PartyState)
+      return newState
+    })
+    console.info('[PartyStore] Party imported from share:', party.id)
   },
 
   setCurrentParty: (id) => set({ currentPartyId: id }),
@@ -171,13 +204,7 @@ export const usePartyStore = create<PartyState>((set, get) => ({
       const newState = {
         parties: state.parties.map(p =>
           p.id === partyId
-            ? {
-                ...p,
-                players: [
-                  ...p.players,
-                  newPlayer
-                ]
-              }
+            ? { ...p, players: [...p.players, newPlayer] }
             : p
         )
       }
@@ -204,9 +231,29 @@ export const usePartyStore = create<PartyState>((set, get) => ({
   },
 
   markReminded: (partyId, playerIds) => {
-    set({
-      lastRemindedPlayers: { partyId, playerIds, timestamp: Date.now() }
-    })
+    set({ lastRemindedPlayers: { partyId, playerIds, timestamp: Date.now() } })
     console.info('[PartyStore] Marked reminded for', playerIds.length, 'players in party', partyId)
+  },
+
+  syncFromStorage: () => {
+    const data = loadFromStorage()
+    if (data) {
+      set({ parties: data.parties, reminders: data.reminders })
+      console.info('[PartyStore] Synced from storage')
+    }
   }
 }))
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY && e.newValue) {
+      try {
+        const data = JSON.parse(e.newValue)
+        if (data.parties) {
+          usePartyStore.setState({ parties: data.parties, reminders: data.reminders || [] })
+          console.info('[PartyStore] Synced from storage event (another tab)')
+        }
+      } catch {}
+    }
+  })
+}
