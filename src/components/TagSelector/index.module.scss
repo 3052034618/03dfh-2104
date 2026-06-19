@@ -1,0 +1,46 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tag {
+  background: $color-bg-hover;
+  padding: 12rpx 28rpx;
+  border-radius: $radius-round;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.tagSelected {
+  background: $color-tag-bg;
+}
+
+.tagAccent {
+  background: rgba($color-accent, 0.06);
+}
+
+.tagAccentSelected {
+  background: $color-pink-bg;
+}
+
+.tagText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.tagTextSelected {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.tagTextAccentSelected {
+  color: $color-accent;
+  font-weight: $font-weight-medium;
+}

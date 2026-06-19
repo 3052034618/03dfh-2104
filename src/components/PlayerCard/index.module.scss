@@ -1,0 +1,130 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+}
+
+.avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: 4rpx;
+}
+
+.name {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.roleTag {
+  background: $color-pink-bg;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.roleText {
+  font-size: $font-size-xs;
+  color: $color-accent;
+}
+
+.newbieTag {
+  background: $color-tag-bg;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.newbieText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
+.dietary {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 4rpx;
+  @include text-ellipsis;
+}
+
+.rejected {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 2rpx;
+  @include text-ellipsis;
+}
+
+.statusBadge {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
+}
+
+.confirmed {
+  background: rgba($color-success, 0.1);
+}
+
+.pending {
+  background: rgba($color-warning, 0.1);
+}
+
+.declined {
+  background: rgba($color-error, 0.1);
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  white-space: nowrap;
+}
+
+.confirmed .statusText {
+  color: $color-success;
+}
+
+.pending .statusText {
+  color: $color-warning;
+}
+
+.declined .statusText {
+  color: $color-error;
+}
+
+.remindBtn {
+  @include button-reset;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.remindText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}

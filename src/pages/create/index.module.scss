@@ -1,0 +1,404 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: 0 $page-padding;
+  padding-bottom: 180rpx;
+  background: $color-bg-page;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-lg 0;
+  margin-bottom: $spacing-md;
+}
+
+.stepDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-border;
+  transition: all $transition-base;
+}
+
+.stepActive {
+  background: $color-primary;
+  width: 40rpx;
+  border-radius: $radius-round;
+}
+
+.stepDone {
+  background: $color-primary;
+}
+
+.stepLine {
+  width: 48rpx;
+  height: 4rpx;
+  background: $color-border;
+  border-radius: $radius-round;
+}
+
+.stepLineDone {
+  background: $color-primary;
+}
+
+.stepLabels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 $spacing-sm;
+  margin-bottom: $spacing-xl;
+}
+
+.stepLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: center;
+  flex: 1;
+}
+
+.stepLabelActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.requiredMark {
+  color: $color-accent;
+  margin-left: 4rpx;
+}
+
+.fieldGroup {
+  margin-bottom: $spacing-lg;
+}
+
+.fieldLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: $spacing-sm;
+  font-weight: $font-weight-medium;
+}
+
+.pickerBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  justify-content: flex-start;
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  transition: all $transition-fast;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.pickerBtnHasValue {
+  color: $color-text-primary;
+  border-color: $color-primary;
+  background: $color-tag-bg;
+}
+
+.inputField {
+  width: 100%;
+  height: $button-height-md;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.seatRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.seatBtn {
+  @include button-reset;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  background: $color-tag-bg;
+  font-size: $font-size-xl;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+
+  &:active {
+    opacity: 0.8;
+    background: $color-primary;
+    color: $color-text-white;
+  }
+}
+
+.seatNumber {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  min-width: 60rpx;
+  text-align: center;
+}
+
+.seatUnit {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-left: 4rpx;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.optionLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.optionDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.switchToggle {
+  width: 80rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: $color-border;
+  position: relative;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.switchActive {
+  background: $color-primary;
+}
+
+.switchKnob {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background: $color-text-white;
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  transition: all $transition-base;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+
+.switchKnobActive {
+  left: 36rpx;
+}
+
+.previewCard {
+  background: linear-gradient(135deg, rgba($color-primary, 0.05) 0%, rgba($color-accent, 0.05) 100%);
+  border: 2rpx solid rgba($color-primary, 0.15);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.previewTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-md;
+  text-align: center;
+}
+
+.previewInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-lg;
+}
+
+.previewItem {
+  width: 45%;
+  margin-bottom: $spacing-sm;
+}
+
+.previewLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.previewValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+  z-index: 100;
+}
+
+.btnPrev {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  &:active {
+    opacity: 0.8;
+    background: $color-bg-hover;
+  }
+}
+
+.btnNext {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnSubmit {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.successOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.successCard {
+  width: 560rpx;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+}
+
+.successIcon {
+  font-size: 96rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.successTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.successDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: $spacing-xl;
+  line-height: $line-height-loose;
+}
+
+.successBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-md;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.successBtnSecondary {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background: transparent;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

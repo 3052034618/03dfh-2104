@@ -1,0 +1,156 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  min-width: 0;
+}
+
+.birthdayIcon {
+  font-size: 36rpx;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.statusTag {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  white-space: nowrap;
+  margin-left: $spacing-sm;
+}
+
+.statusInviting {
+  background: rgba($color-warning, 0.1);
+
+  .statusText {
+    color: $color-warning;
+  }
+}
+
+.statusConfirmed {
+  background: rgba($color-success, 0.1);
+
+  .statusText {
+    color: $color-success;
+  }
+}
+
+.statusDraft {
+  background: $color-bg-hover;
+
+  .statusText {
+    color: $color-text-tertiary;
+  }
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.infoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-md;
+}
+
+.infoItem {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: $spacing-sm;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+}
+
+.fullText {
+  color: $color-success;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.tag {
+  background: $color-tag-bg;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.tagText {
+  font-size: $font-size-xs;
+  color: $color-tag-text;
+  white-space: nowrap;
+}
+
+.accentTag {
+  background: $color-pink-bg;
+}
+
+.accentTagText {
+  font-size: $font-size-xs;
+  color: $color-pink-text;
+  white-space: nowrap;
+}
+
+.progressBar {
+  height: 8rpx;
+  background: $color-divider;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-xs;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary, $color-accent);
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

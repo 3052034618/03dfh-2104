@@ -1,0 +1,117 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: 0 $page-padding;
+  padding-bottom: 120rpx;
+  background: $color-bg-page;
+}
+
+.header {
+  padding: $spacing-lg 0 $spacing-md;
+  background: linear-gradient(180deg, rgba($color-primary, 0.06) 0%, transparent 100%);
+  margin-bottom: $spacing-md;
+}
+
+.headerTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.tabRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.tab {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-card;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.tabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-color: $color-primary;
+  color: $color-text-white;
+}
+
+.tabAccentActive {
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border-color: $color-accent;
+  color: $color-text-white;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.reminderList {
+  margin-bottom: $spacing-xl;
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl 0;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.tipsCard {
+  background: linear-gradient(135deg, rgba($color-primary, 0.04) 0%, rgba($color-accent, 0.04) 100%);
+  border: 2rpx solid rgba($color-primary, 0.1);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.tipsTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.tipsItem {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-xs;
+}
