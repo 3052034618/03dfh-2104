@@ -212,3 +212,42 @@
   font-size: $font-size-xs;
   color: $color-primary;
 }
+
+.declinedHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 4rpx;
+  font-style: italic;
+}
+
+.pendingHint {
+  font-size: $font-size-xs;
+  color: $color-warning;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.statusPill {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  display: inline-flex;
+}
+
+.statusPillText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.confirmed .statusPillText {
+  color: $color-success;
+}
+
+.pending .statusPillText {
+  color: $color-warning;
+}
+
+.declined .statusPillText {
+  color: $color-error;
+}

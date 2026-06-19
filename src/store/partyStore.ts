@@ -165,23 +165,45 @@ export const usePartyStore = create<PartyState>((set, get) => ({
     return { party, reminders: newReminders }
   },
 
-  importParty: (party) => {
-    const existing = get().parties.find(p => p.id === party.id)
-    if (existing) {
-      console.info('[PartyStore] Party already exists, skipping import:', party.id)
+  importParty: (incomingParty) => {
+    const existing = get().parties.find(p => p.id === incomingParty.id)
+    if (!existing) {
+      const newReminders = generateRemindersForParty(incomingParty)
+      set((state) => {
+        const newState = {
+          parties: [incomingParty, ...state.parties],
+          reminders: [...newReminders, ...state.reminders],
+          currentPartyId: incomingParty.id
+        }
+        persistState({ ...state, ...newState } as PartyState)
+        return newState
+      })
+      console.info('[PartyStore] Party imported from share (new):', incomingParty.id)
       return
     }
-    const newReminders = generateRemindersForParty(party)
+
+    const existingPlayerIds = new Set(existing.players.map(p => p.id))
+    const newPlayers = incomingParty.players.filter(p => !existingPlayerIds.has(p.id))
+
+    if (newPlayers.length === 0) {
+      console.info('[PartyStore] Party already exists, no new players to merge:', incomingParty.id)
+      set({ currentPartyId: incomingParty.id })
+      return
+    }
+
     set((state) => {
       const newState = {
-        parties: [party, ...state.parties],
-        reminders: [...newReminders, ...state.reminders],
-        currentPartyId: party.id
+        parties: state.parties.map(p => {
+          if (p.id !== incomingParty.id) return p
+          const updatedPlayers = [...p.players, ...newPlayers]
+          return { ...p, players: updatedPlayers }
+        }),
+        currentPartyId: incomingParty.id
       }
       persistState({ ...state, ...newState } as PartyState)
       return newState
     })
-    console.info('[PartyStore] Party imported from share:', party.id)
+    console.info('[PartyStore] Party merged from share:', incomingParty.id, 'added', newPlayers.length, 'players:', newPlayers.map(p => p.name))
   },
 
   setCurrentParty: (id) => set({ currentPartyId: id }),

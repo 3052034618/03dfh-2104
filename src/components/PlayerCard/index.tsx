@@ -13,7 +13,12 @@ interface PlayerCardProps {
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ player, onRemind, showActions = false }) => {
   const [expanded, setExpanded] = useState(false)
-  const hasDetails = player.timeSlots.length > 0 || player.dietaryRestrictions || player.rejectedThemes.length > 0 || player.phone
+  const hasDetails = player.timeSlots.length > 0
+    || player.dietaryRestrictions
+    || player.rejectedThemes.length > 0
+    || player.phone
+    || player.isNewbie
+    || player.status === 'declined'
 
   const statusClass = player.status === 'confirmed'
     ? styles.confirmed
@@ -43,10 +48,16 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, onRemind, showActions =
               </View>
             )}
           </View>
-          {player.dietaryRestrictions && (
+          {player.status === 'declined' && (
+            <Text className={styles.declinedHint}>已婉拒，点击查看报名资料</Text>
+          )}
+          {player.status === 'pending' && (
+            <Text className={styles.pendingHint}>待回复中</Text>
+          )}
+          {player.status === 'confirmed' && player.dietaryRestrictions && (
             <Text className={styles.dietary}>忌口: {player.dietaryRestrictions}</Text>
           )}
-          {player.rejectedThemes.length > 0 && !expanded && (
+          {player.status === 'confirmed' && player.rejectedThemes.length > 0 && !expanded && (
             <Text className={styles.rejected}>不接受: {player.rejectedThemes.join('、')}</Text>
           )}
         </View>
@@ -62,12 +73,20 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, onRemind, showActions =
 
       {hasDetails && (
         <View className={styles.expandRow} onClick={() => setExpanded(!expanded)}>
-          <Text className={styles.expandText}>{expanded ? '收起详情 ▲' : '查看详情 ▼'}</Text>
+          <Text className={styles.expandText}>
+            {expanded ? '收起详情 ▲' : `查看详情 ▼`}
+          </Text>
         </View>
       )}
 
       {expanded && (
         <View className={styles.detailSection}>
+          <View className={styles.detailItem}>
+            <Text className={styles.detailLabel}>📋 参与状态</Text>
+            <View className={classnames(styles.statusPill, statusClass)}>
+              <Text className={styles.statusPillText}>{getPlayerStatusText(player.status)}</Text>
+            </View>
+          </View>
           {player.timeSlots.length > 0 && (
             <View className={styles.detailItem}>
               <Text className={styles.detailLabel}>🕐 可接受时间</Text>

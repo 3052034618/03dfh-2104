@@ -10,17 +10,15 @@ import styles from './index.module.scss'
 const EnrollPage: React.FC = () => {
   const parties = usePartyStore(state => state.parties)
   const currentPartyId = usePartyStore(state => state.currentPartyId)
+  const setCurrentParty = usePartyStore(state => state.setCurrentParty)
   const lastRemindedPlayers = usePartyStore(state => state.lastRemindedPlayers)
   const markReminded = usePartyStore(state => state.markReminded)
   const syncFromStorage = usePartyStore(state => state.syncFromStorage)
-  const [selectedPartyIdx, setSelectedPartyIdx] = useState(0)
   const [showRemindedToast, setShowRemindedToast] = useState(false)
   const [recentlyRemindedNames, setRecentlyRemindedNames] = useState<string[]>([])
-  const [initialized, setInitialized] = useState(false)
 
   useDidShow(() => {
     syncFromStorage()
-    setInitialized(false)
   })
 
   const invitingParties = useMemo(
@@ -28,19 +26,19 @@ const EnrollPage: React.FC = () => {
     [parties]
   )
 
-  const currentParty = invitingParties[selectedPartyIdx] || null
+  const currentPartyIndex = useMemo(() => {
+    if (!currentPartyId || invitingParties.length === 0) return 0
+    const idx = invitingParties.findIndex(p => p.id === currentPartyId)
+    return idx >= 0 ? idx : 0
+  }, [invitingParties, currentPartyId])
+
+  const currentParty = invitingParties[currentPartyIndex] || null
 
   useEffect(() => {
-    if (!initialized && invitingParties.length > 0 && currentPartyId) {
-      const idx = invitingParties.findIndex(p => p.id === currentPartyId)
-      if (idx >= 0) {
-        setSelectedPartyIdx(idx)
-      }
-      setInitialized(true)
-    } else if (!initialized && invitingParties.length > 0) {
-      setInitialized(true)
+    if (invitingParties.length > 0 && !currentPartyId) {
+      setCurrentParty(invitingParties[0].id)
     }
-  }, [invitingParties, currentPartyId, initialized])
+  }, [invitingParties, currentPartyId, setCurrentParty])
 
   const confirmed = currentParty ? getConfirmedCount(currentParty.players) : 0
   const pending = currentParty ? getPendingCount(currentParty.players) : 0
@@ -94,9 +92,13 @@ const EnrollPage: React.FC = () => {
   }
 
   const handlePartyChange = (e) => {
-    setSelectedPartyIdx(Number(e.detail.value))
-    setShowRemindedToast(false)
-    setRecentlyRemindedNames([])
+    const idx = Number(e.detail.value)
+    const party = invitingParties[idx]
+    if (party) {
+      setCurrentParty(party.id)
+      setShowRemindedToast(false)
+      setRecentlyRemindedNames([])
+    }
   }
 
   const handleCreate = () => {
@@ -128,7 +130,7 @@ const EnrollPage: React.FC = () => {
         <Text className={styles.headerDesc}>管理好友报名和座位进度</Text>
       </View>
 
-      <Picker mode="selector" range={invitingParties.map(p => `${p.birthdayPersonName}的生日局 - ${formatDate(p.birthdayDate)}`)} onChange={handlePartyChange} value={selectedPartyIdx}>
+      <Picker mode="selector" range={invitingParties.map(p => `${p.birthdayPersonName}的生日局 - ${formatDate(p.birthdayDate)}`)} onChange={handlePartyChange} value={currentPartyIndex}>
         <View className={styles.partySelector}>
           <View>
             <Text className={styles.partySelectorLabel}>当前局</Text>
